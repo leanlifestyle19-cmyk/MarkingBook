@@ -1,0 +1,5 @@
+const CACHE='markingbook-v1';
+const ASSETS=["./", "./index.html", "./manifest.json", "./icon.svg", "./rate-card.html", "./enquiry-reply.html", "./trial-confirmation.html", "./assignment-apply.html", "./student-cards.html", "./slot-planner.html", "./package-tracker.html", "./travel-rate.html", "./attendance-log.html", "./syllabus-tracker.html", "./homework-tracker.html", "./marks-progress.html", "./invoice.html", "./payment-tracker.html", "./payment-reminder.html", "./earnings.html", "./progress-report.html", "./review-collector.html", "./referral-tracker.html", "./reschedule.html"];
+self.addEventListener('install',e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));});
+self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
+self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{const cp=res.clone();caches.open(CACHE).then(c=>c.put(e.request,cp));return res;}).catch(()=>caches.match('./index.html'))));});
