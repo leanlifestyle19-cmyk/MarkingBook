@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marking Book — the admin kit for Singapore home tutors</title>
+<meta name="description" content="Twenty tiny tools that handle the admin of solo tutoring — quoting, scheduling, marking, getting paid. Runs in your browser. Your students' data never leaves your device.">
+<style>
+  :root{
+    --paper:#FBFAF6;
+    --paper-2:#F2F0E8;
+    --ink:#1B2330;
+    --ink-soft:#5A6472;
+    --rule:#E2E6EC;
+    --rule-strong:#CBD2DB;
+    --red:#D6443A;        /* the correction pen + exercise-book margin */
+    --red-soft:#F7E2DF;
+    --tick:#2E7D5B;       /* a mark for "done / paid" */
+    --tick-soft:#DCEDE4;
+    --hl:#F4D35E;         /* highlighter, used sparingly */
+    --radius:4px;
+    --maxw:1080px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--paper);color:var(--ink);
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.disp,.eyebrow,.btn,nav,th,label,.mono,input,select,textarea,button{
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  }
+  .mono,.num{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px;}
+  a{color:var(--red);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--red);}
+  /* ---- the signature: red exercise-book margin ---- */
+  .sheet{position:relative;background:var(--paper);
+    background-image:repeating-linear-gradient(transparent,transparent 31px,var(--rule) 31px,var(--rule) 32px);
+    background-position:0 8px;}
+  .sheet::before{content:"";position:absolute;top:0;bottom:0;left:54px;width:2px;background:var(--red);opacity:.5;}
+  @media(max-width:640px){.sheet::before{left:24px}}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:40;background:rgba(251,250,246,.92);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule-strong);}
+  .navin{max-width:var(--maxw);margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:18px;}
+  .brand{font-weight:800;letter-spacing:-.02em;font-size:19px;display:flex;align-items:center;gap:9px}
+  .brand .tick{color:var(--red);font-size:22px;line-height:1}
+  .navlinks{margin-left:auto;display:flex;gap:20px;font-size:14px;font-weight:600}
+  .navlinks a{color:var(--ink)}
+  @media(max-width:720px){.navlinks{display:none}}
+
+  /* hero */
+  header.hero{padding:64px 0 40px;position:relative;overflow:hidden}
+  .hero h1{font-size:clamp(34px,6vw,62px);line-height:1.02;letter-spacing:-.03em;font-weight:800;margin:14px 0 0;max-width:14ch}
+  .hero h1 em{font-style:normal;color:var(--red)}
+  .hero .lede{font-size:clamp(18px,2.4vw,22px);max-width:46ch;margin:22px 0 0;color:var(--ink)}
+  .hero .sub{color:var(--ink-soft);max-width:48ch;margin-top:12px;font-size:16px}
+  .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}
+  .btn{display:inline-block;border:none;cursor:pointer;font-weight:700;font-size:15px;
+    padding:13px 22px;border-radius:var(--radius);background:var(--ink);color:var(--paper);}
+  .btn:hover{text-decoration:none;background:#000}
+  .btn.red{background:var(--red)} .btn.red:hover{background:#bb392f}
+  .btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}
+  .btn.ghost:hover{background:var(--ink);color:var(--paper)}
+  .heromark{position:absolute;right:-10px;top:30px;font-size:230px;line-height:1;color:var(--red);opacity:.07;font-family:Georgia,serif;transform:rotate(-8deg);pointer-events:none}
+
+  .strip{background:var(--ink);color:var(--paper)}
+  .strip .wrap{display:flex;flex-wrap:wrap;gap:26px;padding:18px 22px;justify-content:space-between;align-items:center}
+  .strip b{color:#fff} .strip .mono{color:var(--hl)}
+  .strip div{font-size:14px;color:#C9CFDA;flex:1;min-width:170px}
+
+  section{padding:58px 0}
+  .seclabel{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+  .seclabel h2{font-size:clamp(24px,3.4vw,34px);letter-spacing:-.02em;font-weight:800;margin:0}
+  .secintro{color:var(--ink-soft);max-width:60ch;margin:0 0 28px;font-size:16px}
+
+  /* the problem (PAS) */
+  .pas{background:var(--paper-2);border-top:1px solid var(--rule-strong);border-bottom:1px solid var(--rule-strong)}
+  .pas .scene{font-size:clamp(19px,2.5vw,25px);line-height:1.5;max-width:30ch;font-weight:400}
+  .pas .scene b{background:linear-gradient(transparent 60%,var(--hl) 60%);font-weight:400}
+  .paslist{margin-top:26px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+  .pasitem{padding-left:16px;border-left:2px solid var(--red)}
+  .pasitem h4{margin:0 0 4px;font-size:15px;font-family:"Helvetica Neue",Arial,sans-serif}
+  .pasitem p{margin:0;font-size:14px;color:var(--ink-soft)}
+
+  /* journey map */
+  .journey{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--rule-strong);border-radius:var(--radius);overflow:hidden;margin-top:10px}
+  .jstage{border-right:1px solid var(--rule-strong);background:var(--paper);}
+  .jstage:last-child{border-right:none}
+  .jhead{padding:12px 14px;background:var(--ink);color:var(--paper)}
+  .jhead .n{font-size:11px;letter-spacing:.12em;color:var(--hl);font-weight:700;font-family:"Helvetica Neue",Arial,sans-serif}
+  .jhead .t{font-weight:800;font-size:15px;font-family:"Helvetica Neue",Arial,sans-serif}
+  .jbody{padding:12px 14px}
+  .jpain{font-size:12.5px;color:var(--ink-soft);margin:0 0 10px;font-style:italic}
+  .jtool{font-size:12.5px;padding:5px 0;border-bottom:1px dotted var(--rule-strong);cursor:pointer;color:var(--ink);display:flex;gap:6px;align-items:flex-start}
+  .jtool:last-child{border-bottom:none}
+  .jtool:hover{color:var(--red)}
+  .jtool .d{color:var(--red);font-weight:700}
+  @media(max-width:820px){.journey{grid-template-columns:1fr 1fr}.jstage{border-bottom:1px solid var(--rule-strong)}}
+  @media(max-width:480px){.journey{grid-template-columns:1fr}}
+
+  /* tools */
+  .stagegroup{margin-bottom:40px}
+  .stagebar{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:18px}
+  .stagebar .sn{font-family:ui-monospace,monospace;color:var(--red);font-weight:700;font-size:14px}
+  .stagebar h3{margin:0;font-size:20px;font-weight:800;letter-spacing:-.01em}
+  .stagebar .cnt{margin-left:auto;font-size:12px;color:var(--ink-soft);font-family:"Helvetica Neue",Arial}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px}
+  .card{background:#fff;border:1px solid var(--rule-strong);border-radius:var(--radius);padding:16px 16px 14px;display:flex;flex-direction:column;cursor:pointer;transition:transform .12s,box-shadow .12s;position:relative}
+  .card:hover{transform:translateY(-2px);box-shadow:0 8px 22px -12px rgba(27,35,48,.35);border-color:var(--ink)}
+  .card .tag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;font-family:"Helvetica Neue",Arial;color:#fff;background:var(--ink);padding:2px 7px;border-radius:20px;align-self:flex-start}
+  .card .tag.gen{background:var(--red)} .card .tag.track{background:var(--tick)}
+  .card h4{font-family:"Helvetica Neue",Arial;font-size:16px;margin:11px 0 5px;letter-spacing:-.01em}
+  .card p{margin:0;font-size:13.5px;color:var(--ink-soft);flex:1}
+  .card .open{margin-top:12px;font-size:12.5px;font-weight:700;font-family:"Helvetica Neue",Arial;color:var(--red)}
+
+  /* positioning + honesty */
+  .why{background:var(--ink);color:var(--paper)}
+  .why .eyebrow{color:var(--hl)}
+  .why h2{color:#fff}
+  .why .secintro{color:#C9CFDA}
+  .whygrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;margin-top:6px}
+  .whygrid h4{font-family:"Helvetica Neue",Arial;font-size:16px;margin:0 0 6px;color:#fff}
+  .whygrid p{margin:0;font-size:14.5px;color:#C9CFDA}
+  .whygrid .num{font-size:13px;color:var(--hl)}
+
+  /* pricing */
+  .price{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin-top:8px}
+  .ptier{background:#fff;border:1px solid var(--rule-strong);border-radius:var(--radius);padding:22px}
+  .ptier.feat{border:2px solid var(--red)}
+  .ptier .ph{font-family:"Helvetica Neue",Arial;font-weight:800;font-size:17px}
+  .ptier .pp{font-family:ui-monospace,monospace;font-size:30px;margin:8px 0 2px}
+  .ptier .pp small{font-size:13px;color:var(--ink-soft)}
+  .ptier ul{padding-left:18px;margin:14px 0 18px;font-size:14px;color:var(--ink-soft)}
+  .ptier li{margin:5px 0}
+  .ribbon{display:inline-block;background:var(--red);color:#fff;font-family:"Helvetica Neue",Arial;font-size:11px;font-weight:700;letter-spacing:.08em;padding:3px 9px;border-radius:20px;margin-bottom:10px}
+  .placeholder{font-size:11px;color:var(--ink-soft);font-style:italic}
+
+  footer{background:var(--paper-2);border-top:1px solid var(--rule-strong);padding:40px 0;font-size:14px;color:var(--ink-soft)}
+  footer b{color:var(--ink)}
+  .privacy{display:flex;gap:10px;align-items:flex-start;background:var(--tick-soft);border:1px solid #BCD9C8;border-radius:var(--radius);padding:14px 16px;margin-top:18px;font-size:13.5px;color:#244c39}
+  .privacy .tick{color:var(--tick);font-size:18px;line-height:1.2}
+
+  /* modal */
+  .overlay{position:fixed;inset:0;background:rgba(27,35,48,.55);display:none;align-items:flex-start;justify-content:center;padding:34px 14px;z-index:100;overflow-y:auto}
+  .overlay.on{display:flex}
+  .modal{background:var(--paper);width:100%;max-width:640px;border-radius:6px;border:1px solid var(--rule-strong);box-shadow:0 30px 70px -20px rgba(0,0,0,.5);animation:pop .16s ease}
+  @keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
+  .mhead{display:flex;align-items:flex-start;gap:12px;padding:18px 20px;border-bottom:2px solid var(--red)}
+  .mhead h3{margin:0;font-size:19px;font-weight:800;font-family:"Helvetica Neue",Arial;letter-spacing:-.01em}
+  .mhead p{margin:3px 0 0;font-size:13px;color:var(--ink-soft)}
+  .mclose{margin-left:auto;background:none;border:none;font-size:24px;cursor:pointer;color:var(--ink-soft);line-height:1}
+  .mbody{padding:18px 20px 22px}
+  label{display:block;font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-soft);margin:12px 0 5px}
+  input,select,textarea{width:100%;font-size:15px;padding:9px 11px;border:1px solid var(--rule-strong);border-radius:var(--radius);background:#fff;color:var(--ink)}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--red);outline-offset:1px;border-color:var(--red)}
+  textarea{min-height:74px;resize:vertical;font-family:Georgia,serif}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:520px){.row2{grid-template-columns:1fr}}
+  .out{margin-top:16px;background:#fff;border:1px dashed var(--rule-strong);border-radius:var(--radius);padding:14px;white-space:pre-wrap;font-family:Georgia,serif;font-size:14.5px;min-height:40px}
+  .toolbar{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+  .minibtn{font-family:"Helvetica Neue",Arial;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--ink);background:transparent;color:var(--ink);padding:8px 14px;border-radius:var(--radius)}
+  .minibtn:hover{background:var(--ink);color:#fff}
+  .minibtn.red{border-color:var(--red);color:var(--red)} .minibtn.red:hover{background:var(--red);color:#fff}
+  table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+  th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--rule-strong);padding:6px 8px}
+  td{padding:7px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+  td.num,th.num{text-align:right;font-family:ui-monospace,monospace}
+  .pill{font-size:11px;font-weight:700;font-family:"Helvetica Neue",Arial;padding:2px 8px;border-radius:20px}
+  .pill.ok{background:var(--tick-soft);color:#244c39} .pill.no{background:var(--red-soft);color:#9c2f27}
+  .pill.warn{background:#FBEFC9;color:#7a5b00}
+  .delx{cursor:pointer;color:var(--ink-soft);border:none;background:none;font-size:15px}
+  .delx:hover{color:var(--red)}
+  .summary{margin-top:14px;padding:12px 14px;background:var(--paper-2);border-radius:var(--radius);font-size:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .summary b{font-family:ui-monospace,monospace;font-size:17px}
+  .empty{color:var(--ink-soft);font-style:italic;font-size:14px;padding:14px 4px}
+  .hint{font-size:12.5px;color:var(--ink-soft);margin-top:6px;font-family:"Helvetica Neue",Arial}
+  .saved{display:inline-block;font-size:12px;color:var(--tick);font-weight:700;font-family:"Helvetica Neue",Arial;opacity:0;transition:opacity .2s}
+  .saved.show{opacity:1}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="navin">
+    <div class="brand"><span class="tick">&#10003;</span> Marking&nbsp;Book</div>
+    <div class="navlinks">
+      <a href="#problem">The grind</a>
+      <a href="#journey">How it maps</a>
+      <a href="#tools">The 20 tools</a>
+      <a href="#why">Why this one</a>
+      <a href="#price">Get it</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero sheet">
+  <div class="heromark">&#10003;</div>
+  <div class="wrap">
+    <div class="eyebrow">For Singapore home &amp; online tutors</div>
+    <h1>You signed up to teach. Not to chase <em>payment</em> at 11pm.</h1>
+    <p class="lede">Twenty tiny tools that swallow the admin of running a one-person tuition business — quoting, scheduling, marking, invoicing, chasing, reporting.</p>
+    <p class="sub">Every tool runs right here in your browser. Open one and use it now — no sign-up, no app, no monthly fee. Your students' names, marks and parents' numbers never leave your device.</p>
+    <div class="cta-row">
+      <a href="#tools" class="btn red">Try a tool now &darr;</a>
+      <a href="#why" class="btn ghost">Why not just use an app?</a>
+    </div>
+  </div>
+</header>
+
+<div class="strip">
+  <div class="wrap">
+    <div><b class="mono">S$1.8b</b> spent on tuition in SG in 2023 — and most of it flows to people running the whole show alone.</div>
+    <div>Centres pay for software. <b>Solo tutors get a spreadsheet</b> and a messy WhatsApp.</div>
+    <div>You handle <b>finding, teaching, billing, chasing</b> and reporting. That's five jobs. These are the tools.</div>
+  </div>
+</div>
+
+<!-- PROBLEM / AGITATE -->
+<section id="problem" class="pas">
+  <div class="wrap">
+    <div class="eyebrow">The 11pm version of you</div>
+    <p class="scene">It's late. The P5 parent still hasn't PayNow-ed for last month. The Sec 3 boy's CCA clashes with Thursday again, so that's <b>another reschedule message</b>. You've got marks for three students scribbled on the back of a worksheet, and a new assignment posting in the Telegram group you should reply to before someone else does — but <b>what do you even quote without overquoting?</b></p>
+    <div class="paslist">
+      <div class="pasitem"><h4>Chasing money</h4><p>PayNow, bank transfer, cash, "next week ah" — and you're the one who has to bring it up, again.</p></div>
+      <div class="pasitem"><h4>Schedule whack-a-mole</h4><p>MCs, remedials, CCA, family trips. One change ripples through your whole week.</p></div>
+      <div class="pasitem"><h4>Parent updates</h4><p>They want to know it's working. You want to teach, not write reports from memory.</p></div>
+      <div class="pasitem"><h4>Marks everywhere</h4><p>Progress lives in your head and on loose paper. Until a parent asks for proof.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- JOURNEY MAP -->
+<section id="journey">
+  <div class="wrap">
+    <div class="seclabel"><div class="eyebrow">Design-thinking</div><h2>Your week, mapped — and a tool for every friction point</h2></div>
+    <p class="secintro">These aren't 20 random utilities. They follow the actual journey of a solo tutor's relationship with each student, from the cold assignment posting to the referral that brings the next one. Tap any tool to open it.</p>
+    <div class="journey" id="journeyMap"></div>
+    <p class="hint" style="margin-top:14px">Each stage has its own real pain (in italics, drawn from what tutors actually complain about) and the tools that take it off your plate.</p>
+  </div>
+</section>
+
+<!-- TOOLS -->
+<section id="tools" class="sheet" style="border-top:1px solid var(--rule-strong)">
+  <div class="wrap">
+    <div class="seclabel"><div class="eyebrow">Try before you trust me</div><h2>The 20 tools — all live, all free to try</h2></div>
+    <p class="secintro">I'm not a big brand and I won't pretend to be. So everything works right here on the page. Open any tool, put in real details, see if it actually saves you time. Nothing is sent anywhere.</p>
+    <div id="toolGroups"></div>
+  </div>
+</section>
+
+<!-- WHY THIS, NOT AN APP -->
+<section id="why" class="why">
+  <div class="wrap">
+    <div class="seclabel"><div class="eyebrow">Honest positioning</div><h2>Why not just use a tuition app?</h2></div>
+    <p class="secintro">Because the polished apps are built for centres with 50 students and an admin staff — and they want a login and a monthly fee for it. You're one person. Here's what you get instead.</p>
+    <div class="whygrid">
+      <div><div class="num">01</div><h4>Your data stays on your device</h4><p>Student names, parents' numbers, home addresses, marks — they live in your browser, not on someone's server. For PDPA peace of mind, that's not a compromise. It's the point.</p></div>
+      <div><div class="num">02</div><h4>No login, no subscription</h4><p>Nothing to remember, nothing billing you monthly for tools you use ten minutes a week. Bookmark the page. That's the whole setup.</p></div>
+      <div><div class="num">03</div><h4>Built for one tutor, not a franchise</h4><p>No "organisation settings", no seats, no onboarding call. It speaks your week: assignments, packages, PayNow, parent chat, marks.</p></div>
+      <div><div class="num">04</div><h4>Made local</h4><p>Quotes that know SG market rates so you don't overquote. Reschedule and reminder messages that sound like a Singaporean tutor, not a US SaaS.</p></div>
+    </div>
+    <div class="privacy" style="background:#22303f;border-color:#33475a;color:#cdd6e0;margin-top:26px">
+      <span class="tick" style="color:var(--hl)">&#9888;</span>
+      <span><b style="color:#fff">The honest trade-off:</b> because your data stays on your device, it's per-browser and doesn't sync across phone and laptop on its own. Most tools have an Export button so you can back up or move your data. If you need cloud sync across devices, this isn't that — and I'd rather tell you now than refund you later.</span>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="price">
+  <div class="wrap">
+    <div class="seclabel"><div class="eyebrow">If it saved you an evening</div><h2>Keep it for the price of one lesson</h2></div>
+    <p class="secintro">The tools above are fully usable right now, for free, forever. Paying gets you the downloadable copy to keep, your own branding on the messages, and — if you want it — me setting it up around how <em>you</em> actually run things.</p>
+    <div class="price">
+      <div class="ptier">
+        <div class="ph">Try it</div>
+        <div class="pp">Free</div>
+        <div class="placeholder">— this page, right now</div>
+        <ul><li>All 20 tools, fully working</li><li>Data stays on your device</li><li>Export your data anytime</li><li>No sign-up</li></ul>
+        <a href="#tools" class="btn ghost" style="width:100%;text-align:center">Use it free</a>
+      </div>
+      <div class="ptier feat">
+        <span class="ribbon">Most tutors pick this</span>
+        <div class="ph">Own your copy</div>
+        <div class="pp">S$19 <small>once</small></div>
+        <div class="placeholder">placeholder price — to be tested with real tutors first</div>
+        <ul><li>Download the whole kit as one file</li><li>Run it offline, forever, no page needed</li><li>Put your own name on every message</li><li>Free updates</li></ul>
+        <button class="btn red" style="width:100%" onclick="alert('Checkout is a placeholder. Before wiring real payment, this gets put in front of real tutors to confirm they\'d pay — per the validation-first plan in the launch guide.')">Get the kit</button>
+      </div>
+      <div class="ptier">
+        <div class="ph">Done for you</div>
+        <div class="pp">from S$80</div>
+        <div class="placeholder">the real business, probably</div>
+        <ul><li>I customise the tools to your subjects, levels &amp; rates</li><li>Your branding, your message templates</li><li>Hosted on your own link</li><li>30-min setup call</li></ul>
+        <button class="btn ghost" style="width:100%" onclick="alert('This is the service offer. The 20 tools double as 20 customisation templates — the service is likely the real money, exactly as your AAR concluded.')">Enquire</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand" style="margin-bottom:10px"><span class="tick">&#10003;</span> Marking Book</div>
+    <p style="max-width:60ch">Built by one person who got tired of watching good tutors lose evenings to admin. No stock photos, no fake reviews, no venture money. Just tools that work and the truth about what they do.</p>
+    <div class="privacy">
+      <span class="tick">&#10003;</span>
+      <span><b>Nothing you type here is uploaded.</b> Generators build text on your screen; trackers save to this browser's local storage only. Clear your browser data and it's gone — so use Export to keep backups.</span>
+    </div>
+    <p style="margin-top:18px;font-size:12.5px">Market rate references and tuition-admin pain points drawn from public 2025–2026 Singapore sources. Rate hints are guidance, not advice — you set your own rates.</p>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeTool()">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="mhead">
+      <div><h3 id="mTitle"></h3><p id="mDesc"></p></div>
+      <button class="mclose" onclick="closeTool()" aria-label="Close">&times;</button>
+    </div>
+    <div class="mbody" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- helpers (matches the single-file, offline, guarded conventions) ---------- */
+function localDateStr(d){ d=d||new Date(); const o=d.getTimezoneOffset();
+  return new Date(d.getTime()-o*60000).toISOString().slice(0,10); }
+function todayNice(){ const d=new Date();
+  return d.toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}); }
+const store = {
+  get(k,fb){ try{ const v=localStorage.getItem('mbk_'+k); return v?JSON.parse(v):fb; }catch(e){ return fb; } },
+  set(k,v){ try{ localStorage.setItem('mbk_'+k,JSON.stringify(v)); return true; }catch(e){ return false; } }
+};
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function money(n){ n=Number(n)||0; return 'S$'+n.toLocaleString('en-SG',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+
+/* ---------- the five journey stages ---------- */
+const STAGES = [
+  {id:'find',  n:'Stage 1', t:'Get found',  pain:'"What do I quote without overquoting? And what do I even say back?"'},
+  {id:'onboard',n:'Stage 2', t:'Onboard',   pain:'"New student — now where do their details, slots and package live?"'},
+  {id:'teach', n:'Stage 3', t:'Teach',      pain:'"Did he do last week\'s homework? What topic are we even on?"'},
+  {id:'paid',  n:'Stage 4', t:'Get paid',   pain:'"Three parents owe me and I hate having to ask."'},
+  {id:'grow',  n:'Stage 5', t:'Grow',       pain:'"Parents want proof it\'s working — and I want referrals."'}
+];
+
+/* ---------- TOOL DEFINITIONS (20) ---------- */
+/* type:'gen'  -> declarative form + build(v)=>text
+   type:'track'-> declarative list persisted to localStorage  */
+const TOOLS = [
+
+/* ===== Stage 1: GET FOUND ===== */
+{id:'ratecard',stage:'find',type:'gen',name:'Rate Card Maker',
+ blurb:'A clean, shareable list of your levels, subjects and rates — so you stop quoting from memory.',
+ fields:[
+   {k:'name',l:'Your name / handle',ph:'e.g. Mr Tan (NIE-trained)'},
+   {k:'lines',l:'One per line:  Level Subject = rate',type:'textarea',ph:'P5 Math = 45\nSec 3 A.Math = 55\nJC H2 Chem = 80'},
+   {k:'mode',l:'Lesson mode',type:'select',opts:['Home (I travel)','Online','Both']},
+   {k:'note',l:'Note (optional)',ph:'Min 1.5h per session. Packages of 4 available.'}
+ ],
+ build(v){ const rows=(v.lines||'').split('\n').filter(x=>x.trim()).map(x=>{
+     const [a,b]=x.split('=');return '  '+(a||'').trim()+'  —  S$'+(b||'').trim()+'/hr'; }).join('\n');
+   return `📋 TUITION RATES — ${v.name||'[your name]'}\nMode: ${v.mode}\n\n${rows||'  [add your levels above]'}\n${v.note?'\nNote: '+v.note:''}\n\n(Rates as of ${todayNice()}. Direct private tuition, no agency fee.)`; },
+ hint:'SG market check: undergrad ~$25–40/hr · grad ~$40–60/hr · ex/current MOE ~$60–90+/hr. Don\u2019t overquote — it loses you the assignment.'},
+
+{id:'enquiry',stage:'find',type:'gen',name:'Enquiry First-Reply',
+ blurb:'A warm, complete reply to a parent enquiry that asks the questions you always forget to ask.',
+ fields:[
+   {k:'tutor',l:'Your name',ph:'Mr Tan'},
+   {k:'level',l:'Level & subject',ph:'P5 Math'},
+   {k:'area',l:'Area you cover',ph:'Bishan / online'},
+   {k:'rate',l:'Your rate',ph:'45'},
+   {k:'slots',l:'Slots you have free',ph:'Tue 5pm, Sat morning'}
+ ],
+ build(v){ return `Hi! Thanks for reaching out 🙂\n\nI'm ${v.tutor||'[name]'} — I teach ${v.level||'[level/subject]'}, ${v.area||'[area]'}, at S$${v.rate||'[rate]'}/hr.\n\nTo see if I'm a good fit, may I check:\n• Which school & current results?\n• What's the main worry — specific topics, exam technique, confidence?\n• Preferred day/time? I currently have ${v.slots||'[slots]'}.\n• Home or online?\n\nHappy to do a short first lesson so your child can see if we click before committing. 👍`; }},
+
+{id:'trial',stage:'find',type:'gen',name:'Trial Lesson Confirmation',
+ blurb:'Lock in the first lesson with a tidy confirmation so nobody turns up to the wrong place or time.',
+ fields:[
+   {k:'parent',l:'Parent name',ph:'Mrs Lim'},
+   {k:'student',l:'Student',ph:'Jayden'},
+   {k:'date',l:'Date',type:'date'},
+   {k:'time',l:'Time',type:'time'},
+   {k:'venue',l:'Venue / link',ph:'Your home / Zoom link'},
+   {k:'rate',l:'Trial rate',ph:'45'},
+   {k:'bring',l:'Bring along',ph:'Latest test paper, school worksheet'}
+ ],
+ build(v){ const d=v.date?new Date(v.date).toLocaleDateString('en-SG',{weekday:'long',day:'numeric',month:'long'}):'[date]';
+   return `Confirmed! Looking forward to meeting ${v.student||'[student]'} 🙂\n\n📅 ${d}\n⏰ ${v.time||'[time]'}\n📍 ${v.venue||'[venue]'}\n💵 S$${v.rate||'[rate]'} for the first lesson\n\nPlease have ready: ${v.bring||'[materials]'}.\n\nIf anything changes, just message me. See you then!\n— sent ${todayNice()}`; }},
+
+{id:'apply',stage:'find',type:'gen',name:'Assignment Quick-Apply',
+ blurb:'Reply to a Telegram/Facebook assignment posting fast, with everything the agency asks for.',
+ fields:[
+   {k:'tutor',l:'Your name',ph:'Mr Tan'},
+   {k:'type',l:'Tutor type',type:'select',opts:['Part-time / undergrad','Full-time graduate','Ex/Current MOE teacher']},
+   {k:'subj',l:'Subject(s) you\u2019re applying for',ph:'P4 Science'},
+   {k:'exp',l:'Relevant experience (1 line)',ph:'3 yrs, raised 2 students from C to A in PSLE Sci'},
+   {k:'rate',l:'Your rate',ph:'40'},
+   {k:'slots',l:'Detailed availability',ph:'Mon/Wed after 7pm, Sat 9am–1pm'}
+ ],
+ build(v){ const r={'Part-time / undergrad':'$25–40','Full-time graduate':'$40–60','Ex/Current MOE teacher':'$60–90'}[v.type];
+   return `Hi, I'd like to apply for this assignment.\n\n• Name: ${v.tutor||'[name]'}\n• Tutor type: ${v.type}\n• Subject: ${v.subj||'[subject]'}\n• Experience: ${v.exp||'[experience]'}\n• Rate: S$${v.rate||'[rate]'}/hr\n• Available: ${v.slots||'[slots]'}\n\nCan start asap. Thank you!`; },
+ hint:'Postings literally say "don\u2019t overquote". Typical bands for your type: ' },
+
+/* ===== Stage 2: ONBOARD ===== */
+{id:'students',stage:'onboard',type:'track',name:'Student Cards',
+ blurb:'A private little roster: who you teach, their level, goal and parent contact. Stays on your device.',
+ storeKey:'students',
+ fields:[
+   {k:'name',l:'Student',ph:'Jayden Lim'},
+   {k:'level',l:'Level & subject',ph:'P5 Math'},
+   {k:'contact',l:'Parent contact (stays local)',ph:'Mrs Lim 9xxx'},
+   {k:'goal',l:'Main goal',ph:'PSLE — push from AL4 to AL2'}
+ ],
+ cols:[{k:'name',l:'Student'},{k:'level',l:'Level'},{k:'goal',l:'Goal'},{k:'contact',l:'Contact'}]},
+
+{id:'timetable',stage:'onboard',type:'track',name:'Weekly Slot Planner',
+ blurb:'Lay out your week and catch clashes before you accidentally double-book a Thursday.',
+ storeKey:'slots',
+ fields:[
+   {k:'day',l:'Day',type:'select',opts:['Mon','Tue','Wed','Thu','Fri','Sat','Sun']},
+   {k:'start',l:'Start',type:'time'},
+   {k:'end',l:'End',type:'time'},
+   {k:'student',l:'Student',ph:'Jayden (P5 Math)'}
+ ],
+ cols:[{k:'day',l:'Day'},{k:'start',l:'Start'},{k:'end',l:'End'},{k:'student',l:'Student'},
+   {k:'_clash',l:'',compute:(r,all)=>{
+     const ov=all.some(o=>o!==r&&o.day===r.day&&o.start&&o.end&&r.start&&r.end&&(r.start<o.end&&o.start<r.end));
+     return ov?'<span class="pill no">clash</span>':'<span class="pill ok">ok</span>';}}],
+ sortFn:(a,b)=>{const d=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];return d.indexOf(a.day)-d.indexOf(b.day)||(a.start||'').localeCompare(b.start||'');}},
+
+{id:'packages',stage:'onboard',type:'track',name:'Package Tracker',
+ blurb:'Selling 4-lesson packages? Track how many lessons each student has left before you forget.',
+ storeKey:'packages',
+ fields:[
+   {k:'student',l:'Student',ph:'Jayden'},
+   {k:'total',l:'Lessons in package',type:'number',ph:'4'},
+   {k:'used',l:'Lessons used',type:'number',ph:'1'}
+ ],
+ cols:[{k:'student',l:'Student'},{k:'total',l:'Package',cls:'num'},{k:'used',l:'Used',cls:'num'},
+   {k:'_left',l:'Left',cls:'num',compute:r=>{const left=(Number(r.total)||0)-(Number(r.used)||0);
+     return `<span class="pill ${left<=1?'warn':'ok'}">${left}</span>`;}}]},
+
+{id:'travel',stage:'onboard',type:'track',name:'Travel & Rate Sanity',
+ blurb:'For home tutors: see your true hourly rate once travel time and transport eat into it.',
+ storeKey:'travel',
+ fields:[
+   {k:'student',l:'Student',ph:'Jayden'},
+   {k:'area',l:'Area',ph:'Pasir Ris'},
+   {k:'mins',l:'Travel each way (mins)',type:'number',ph:'45'},
+   {k:'fare',l:'Transport cost return (S$)',type:'number',ph:'5'},
+   {k:'rate',l:'Your hourly rate (S$)',type:'number',ph:'45'}
+ ],
+ cols:[{k:'student',l:'Student'},{k:'area',l:'Area'},{k:'mins',l:'Travel/way',cls:'num'},
+   {k:'_eff',l:'True $/clock-hr',cls:'num',compute:r=>{
+     const rate=Number(r.rate)||0,fare=Number(r.fare)||0,mins=Number(r.mins)||0;
+     const lessonH=1.5; const clockH=lessonH+(2*mins)/60;
+     const net=rate*lessonH-fare; const eff=clockH>0?net/clockH:0;
+     return `<span class="pill ${eff<rate*0.7?'warn':'ok'}">${eff.toFixed(0)}</span>`;}}],
+ note:'Assumes a 1.5h lesson. "True $/clock-hr" = (rate × 1.5 − fare) ÷ (1.5h + travel both ways). If it\u2019s far below your headline rate, that\u2019s why far-away students feel not worth it.'},
+
+/* ===== Stage 3: TEACH ===== */
+{id:'attendance',stage:'teach',type:'track',name:'Attendance Log',
+ blurb:'A dated record of who showed, who skipped, who rescheduled — useful when a parent disputes a bill.',
+ storeKey:'attendance',
+ fields:[
+   {k:'student',l:'Student',ph:'Jayden'},
+   {k:'date',l:'Date',type:'date'},
+   {k:'status',l:'Status',type:'select',opts:['Present','Rescheduled','Absent (charged)','Absent (waived)']},
+   {k:'note',l:'Note',ph:'Covered fractions'}
+ ],
+ cols:[{k:'date',l:'Date'},{k:'student',l:'Student'},
+   {k:'status',l:'Status',compute:r=>{const ok=r.status==='Present';
+     return `<span class="pill ${ok?'ok':'warn'}">${esc(r.status)}</span>`;}},{k:'note',l:'Note'}],
+ sortFn:(a,b)=>(b.date||'').localeCompare(a.date||'')},
+
+{id:'lessonplan',stage:'teach',type:'track',name:'Topic / Syllabus Tracker',
+ blurb:'Plan topics against the syllabus and tick them off, so you always know what\u2019s next.',
+ storeKey:'topics',
+ fields:[
+   {k:'student',l:'Student',ph:'Jayden'},
+   {k:'topic',l:'Topic',ph:'Fractions: division'},
+   {k:'status',l:'Status',type:'select',opts:['Planned','Covered','Revised','Mastered']}
+ ],
+ cols:[{k:'student',l:'Student'},{k:'topic',l:'Topic'},
+   {k:'status',l:'Status',compute:r=>{const m={'Mastered':'ok','Revised':'ok','Covered':'warn','Planned':'no'}[r.status]||'no';
+     return `<span class="pill ${m}">${esc(r.status)}</span>`;}}]},
+
+{id:'homework',stage:'teach',type:'track',name:'Homework Tracker',
+ blurb:'What you assigned, when it\u2019s due, and whether it actually got done.',
+ storeKey:'homework',
+ fields:[
+   {k:'student',l:'Student',ph:'Jayden'},
+   {k:'task',l:'Assigned',ph:'Worksheet 3, Q1–10'},
+   {k:'due',l:'Due',type:'date'},
+   {k:'done',l:'Done?',type:'select',opts:['Not yet','Done','Partial']}
+ ],
+ cols:[{k:'student',l:'Student'},{k:'task',l:'Task'},{k:'due',l:'Due'},
+   {k:'done',l:'Done?',compute:r=>{const m={'Done':'ok','Partial':'warn','Not yet':'no'}[r.done]||'no';
+     return `<span class="pill ${m}">${esc(r.done)}</span>`;}}],
+ sortFn:(a,b)=>(a.due||'').localeCompare(b.due||'')},
+
+{id:'marks',stage:'teach',type:'track',name:'Marks & Progress',
+ blurb:'Log every test mark as a percentage so you can actually show a parent the trend line.',
+ storeKey:'marks',
+ fields:[
+   {k:'student',l:'Student',ph:'Jayden'},
+   {k:'assess',l:'Assessment',ph:'CA2 Math'},
+   {k:'date',l:'Date',type:'date'},
+   {k:'mark',l:'Mark',type:'number',ph:'34'},
+   {k:'outof',l:'Out of',type:'number',ph:'50'}
+ ],
+ cols:[{k:'date',l:'Date'},{k:'student',l:'Student'},{k:'assess',l:'Assessment'},
+   {k:'_pct',l:'%',cls:'num',compute:r=>{const p=(Number(r.outof)||0)>0?Math.round(Number(r.mark)/Number(r.outof)*100):0;
+     return `<span class="pill ${p>=75?'ok':p>=50?'warn':'no'}">${p}%</span>`;}}],
+ sortFn:(a,b)=>(a.date||'').localeCompare(b.date||'')},
+
+/* ===== Stage 4: GET PAID ===== */
+{id:'invoice',stage:'paid',type:'gen',name:'Invoice / Receipt',
+ blurb:'A proper invoice with your PayNow details and a clean total — looks professional, takes 30 seconds.',
+ fields:[
+   {k:'tutor',l:'Your name',ph:'Mr Tan'},
+   {k:'paynow',l:'PayNow name / number',ph:'Tan A.B. · 9xxx xxxx'},
+   {k:'parent',l:'Bill to',ph:'Mrs Lim (Jayden)'},
+   {k:'period',l:'Period',ph:'June 2026'},
+   {k:'lines',l:'One per line:  date desc = amount',type:'textarea',ph:'3 Jun  P5 Math 1.5h = 67.50\n10 Jun P5 Math 1.5h = 67.50'}
+ ],
+ build(v){ let total=0; const rows=(v.lines||'').split('\n').filter(x=>x.trim()).map(x=>{
+     const [d,a]=x.split('='); total+=Number((a||'').trim())||0;
+     return '  '+(d||'').trim().padEnd(26,' ').slice(0,26)+'S$'+(Number((a||'').trim())||0).toFixed(2); }).join('\n');
+   return `INVOICE — ${v.period||'[period]'}\nFrom: ${v.tutor||'[your name]'}\nTo:   ${v.parent||'[parent]'}\nDate: ${todayNice()}\n${'-'.repeat(34)}\n${rows||'  [add lessons above]'}\n${'-'.repeat(34)}\nTOTAL:  S$${total.toFixed(2)}\n\nPay via PayNow to: ${v.paynow||'[PayNow]'}\nThank you! 🙏`; }},
+
+{id:'payments',stage:'paid',type:'track',name:'Payment Tracker',
+ blurb:'Who owes what, who\u2019s paid. The running "outstanding" total tells you exactly how much is out there.',
+ storeKey:'payments',
+ fields:[
+   {k:'student',l:'Student',ph:'Jayden'},
+   {k:'period',l:'For',ph:'June'},
+   {k:'amount',l:'Amount (S$)',type:'number',ph:'270'},
+   {k:'status',l:'Status',type:'select',opts:['Unpaid','Paid']}
+ ],
+ cols:[{k:'student',l:'Student'},{k:'period',l:'For'},{k:'amount',l:'Amount',cls:'num',compute:r=>money(r.amount)},
+   {k:'status',l:'Status',compute:r=>{const ok=r.status==='Paid';
+     return `<span class="pill ${ok?'ok':'no'}">${esc(r.status)}</span>`;}}],
+ summary:rows=>{const out=rows.filter(r=>r.status!=='Paid').reduce((s,r)=>s+(Number(r.amount)||0),0);
+   const got=rows.filter(r=>r.status==='Paid').reduce((s,r)=>s+(Number(r.amount)||0),0);
+   return `<span>Collected: <b style="color:var(--tick)">${money(got)}</b></span><span>Still owed to you: <b style="color:var(--red)">${money(out)}</b></span>`;}},
+
+{id:'reminder',stage:'paid',type:'gen',name:'Payment Reminder',
+ blurb:'The message you hate writing — done for you, in three tones, so chasing money stops being awkward.',
+ fields:[
+   {k:'parent',l:'Parent name',ph:'Mrs Lim'},
+   {k:'student',l:'Student',ph:'Jayden'},
+   {k:'amount',l:'Amount (S$)',ph:'270'},
+   {k:'period',l:'For',ph:'June lessons'},
+   {k:'paynow',l:'PayNow',ph:'9xxx xxxx'},
+   {k:'tone',l:'Tone',type:'select',opts:['Gentle nudge','Clear & direct','Final reminder']}
+ ],
+ build(v){ const p=v.parent||'[parent]',s=v.student||'[student]',a='S$'+(v.amount||'[amount]'),per=v.period||'[period]',pn=v.paynow||'[PayNow]';
+   const t={
+     'Gentle nudge':`Hi ${p}, hope you're well 🙂 Just a friendly reminder for ${s}'s ${per} — ${a}. Whenever convenient, PayNow to ${pn}. Thank you so much!`,
+     'Clear & direct':`Hi ${p}, this is a reminder that ${a} for ${s}'s ${per} is still outstanding. Kindly PayNow to ${pn} by end of this week. Thanks for sorting it out! 🙏`,
+     'Final reminder':`Hi ${p}, ${s}'s ${per} fees (${a}) remain unpaid despite earlier reminders. I'll need this settled before the next lesson — PayNow to ${pn}. Do let me know if there's any issue. Thank you.`
+   };
+   return t[v.tone||'Gentle nudge']; }},
+
+{id:'earnings',stage:'paid',type:'track',name:'Monthly Earnings',
+ blurb:'Log lessons taught and your rate; it totals what you actually earned this month. No spreadsheet.',
+ storeKey:'earnings',
+ fields:[
+   {k:'date',l:'Date',type:'date'},
+   {k:'student',l:'Student',ph:'Jayden'},
+   {k:'hours',l:'Hours',type:'number',ph:'1.5'},
+   {k:'rate',l:'Rate/hr (S$)',type:'number',ph:'45'}
+ ],
+ cols:[{k:'date',l:'Date'},{k:'student',l:'Student'},{k:'hours',l:'Hrs',cls:'num'},
+   {k:'_amt',l:'Earned',cls:'num',compute:r=>money((Number(r.hours)||0)*(Number(r.rate)||0))}],
+ sortFn:(a,b)=>(b.date||'').localeCompare(a.date||''),
+ summary:rows=>{const tot=rows.reduce((s,r)=>s+(Number(r.hours)||0)*(Number(r.rate)||0),0);
+   const hrs=rows.reduce((s,r)=>s+(Number(r.hours)||0),0);
+   return `<span>Total hours: <b>${hrs.toFixed(1)}</b></span><span>Earned: <b style="color:var(--tick)">${money(tot)}</b></span>`;}},
+
+/* ===== Stage 5: GROW ===== */
+{id:'report',stage:'grow',type:'gen',name:'Parent Progress Report',
+ blurb:'A tidy monthly update that makes parents feel the money is working — written from a few quick notes.',
+ fields:[
+   {k:'student',l:'Student',ph:'Jayden'},
+   {k:'month',l:'Month',ph:'June 2026'},
+   {k:'topics',l:'Topics covered',ph:'Fractions, decimals, intro to ratio'},
+   {k:'strength',l:'Going well',ph:'Faster at long division, more confident'},
+   {k:'focus',l:'Still working on',ph:'Word problems — reading the question'},
+   {k:'next',l:'Next month',ph:'Ratio + start revision papers'}
+ ],
+ build(v){ return `📘 Progress update — ${v.student||'[student]'}\n${v.month||'[month]'}\n\nCovered this month:\n${v.topics||'[topics]'}\n\nWhat's going well:\n${v.strength||'[strengths]'}\n\nWhat we're still working on:\n${v.focus||'[focus]'}\n\nPlan for next month:\n${v.next||'[plan]'}\n\nHappy to chat anytime. Thanks for your trust! 🙂`; }},
+
+{id:'reviews',stage:'grow',type:'track',name:'Review Collector',
+ blurb:'Save the kind words parents send you. Real quotes you can (with permission) use to win the next student.',
+ storeKey:'reviews',
+ fields:[
+   {k:'parent',l:'From',ph:'Mrs Lim'},
+   {k:'student',l:'Re student',ph:'Jayden'},
+   {k:'quote',l:'What they said',type:'textarea',ph:'Jayden actually looks forward to Math now!'},
+   {k:'date',l:'Date',type:'date'}
+ ],
+ cols:[{k:'date',l:'Date'},{k:'parent',l:'From'},{k:'quote',l:'Quote'}],
+ sortFn:(a,b)=>(b.date||'').localeCompare(a.date||'')},
+
+{id:'referrals',stage:'grow',type:'track',name:'Referral Tracker',
+ blurb:'Word of mouth is how solo tutors grow. Track who referred whom and any thank-you reward you promised.',
+ storeKey:'referrals',
+ fields:[
+   {k:'referrer',l:'Referred by',ph:'Mrs Lim'},
+   {k:'newstu',l:'New student',ph:'Rachel (Sec 2)'},
+   {k:'reward',l:'Reward promised (S$)',type:'number',ph:'50'},
+   {k:'status',l:'Reward status',type:'select',opts:['Pending','Given','None']}
+ ],
+ cols:[{k:'referrer',l:'Referred by'},{k:'newstu',l:'New student'},
+   {k:'reward',l:'Reward',cls:'num',compute:r=>r.reward?money(r.reward):'—'},
+   {k:'status',l:'Status',compute:r=>{const m={'Given':'ok','Pending':'warn','None':'no'}[r.status]||'no';
+     return `<span class="pill ${m}">${esc(r.status)}</span>`;}}],
+ summary:rows=>{const c=rows.length; return `<span>Students from referrals: <b>${c}</b></span><span>The cheapest students you'll ever get.</span>`;}},
+
+{id:'reschedule',stage:'grow',type:'gen',name:'Reschedule Message',
+ blurb:'CCA clash? MC? Family trip? A polite, no-drama message to move a lesson without losing goodwill.',
+ fields:[
+   {k:'parent',l:'Parent name',ph:'Mrs Lim'},
+   {k:'student',l:'Student',ph:'Jayden'},
+   {k:'orig',l:'Original slot',ph:'this Thursday 5pm'},
+   {k:'reason',l:'Reason',type:'select',opts:['Student has a clash','I\u2019m unwell','Public holiday','Exam week — pausing','Other commitment']},
+   {k:'proposed',l:'Proposed new slot',ph:'Saturday 10am'}
+ ],
+ build(v){ const r={'Student has a clash':`I understand ${v.student||'[student]'} has a clash`,
+     'I\u2019m unwell':`I'm a little unwell and don't want to pass anything on`,
+     'Public holiday':`as it falls on a public holiday`,
+     'Exam week — pausing':`since it's exam week and ${v.student||'[student]'} may prefer to focus on revision`,
+     'Other commitment':`I have an unavoidable commitment`}[v.reason];
+   return `Hi ${v.parent||'[parent]'}, regarding ${v.orig||'[original slot]'} — ${r}. Could we move it to ${v.proposed||'[new slot]'} instead? Happy to work around what suits ${v.student||'[student]'}. Let me know and I'll confirm. Thanks for understanding! 🙂`; }}
+];
+
+/* ---------- render journey map ---------- */
+(function(){
+  const map=document.getElementById('journeyMap');
+  STAGES.forEach(st=>{
+    const tools=TOOLS.filter(t=>t.stage===st.id);
+    const div=document.createElement('div'); div.className='jstage';
+    div.innerHTML=`<div class="jhead"><div class="n">${st.n}</div><div class="t">${st.t}</div></div>
+      <div class="jbody"><p class="jpain">${st.pain}</p>${
+        tools.map(t=>`<div class="jtool" onclick="openTool('${t.id}')"><span class="d">&#10003;</span><span>${t.name}</span></div>`).join('')
+      }</div>`;
+    map.appendChild(div);
+  });
+})();
+
+/* ---------- render tool cards grouped by stage ---------- */
+(function(){
+  const host=document.getElementById('toolGroups');
+  STAGES.forEach((st,i)=>{
+    const tools=TOOLS.filter(t=>t.stage===st.id);
+    const g=document.createElement('div'); g.className='stagegroup';
+    g.innerHTML=`<div class="stagebar"><span class="sn">${String(i+1).padStart(2,'0')}</span>
+      <h3>${st.t}</h3><span class="cnt">${tools.length} tools</span></div>
+      <div class="grid">${tools.map(t=>{
+        const tag=t.type==='gen'?'<span class="tag gen">Generator</span>':'<span class="tag track">Tracker</span>';
+        return `<div class="card" onclick="openTool('${t.id}')">${tag}
+          <h4>${t.name}</h4><p>${t.blurb}</p>
+          <span class="open">Open tool &rarr;</span></div>`;}).join('')}</div>`;
+    host.appendChild(g);
+  });
+})();
+
+/* ---------- modal engine ---------- */
+let current=null;
+function openTool(id){
+  const t=TOOLS.find(x=>x.id===id); if(!t)return; current=t;
+  document.getElementById('mTitle').textContent=t.name;
+  document.getElementById('mDesc').textContent=t.blurb;
+  const body=document.getElementById('mBody');
+  body.innerHTML = t.type==='gen' ? genHTML(t) : trackHTML(t);
+  if(t.type==='gen'){ genWire(t); } else { trackRender(t); }
+  document.getElementById('overlay').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeTool(){ document.getElementById('overlay').classList.remove('on'); document.body.style.overflow=''; current=null; }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape')closeTool(); });
+
+function fieldHTML(f){
+  const id='f_'+f.k;
+  if(f.type==='select') return `<label for="${id}">${f.l}</label><select id="${id}">${f.opts.map(o=>`<option>${o}</option>`).join('')}</select>`;
+  if(f.type==='textarea') return `<label for="${id}">${f.l}</label><textarea id="${id}" placeholder="${f.ph||''}"></textarea>`;
+  const tp=f.type||'text';
+  return `<label for="${id}">${f.l}</label><input id="${id}" type="${tp}" placeholder="${f.ph||''}">`;
+}
+
+/* ----- generators ----- */
+function genHTML(t){
+  const fields=t.fields.map(f=>{
+    if((f.k==='date'||f.type==='date')) return fieldHTML(f);
+    return fieldHTML(f);
+  }).join('');
+  return `<div id="genForm">${fields}</div>
+    ${t.hint?`<p class="hint" id="genHint">${t.hint}</p>`:''}
+    <div class="out" id="genOut">Fill in the fields and your message appears here.</div>
+    <div class="toolbar">
+      <button class="minibtn red" onclick="genCopy()">Copy</button>
+      <button class="minibtn" onclick="genClear()">Clear</button>
+    </div>`;
+}
+function genVals(t){ const v={}; t.fields.forEach(f=>{ const el=document.getElementById('f_'+f.k); v[f.k]=el?el.value:''; }); return v; }
+function genUpdate(){ if(!current||current.type!=='gen')return;
+  const v=genVals(current); document.getElementById('genOut').textContent=current.build(v);
+  // dynamic hint for apply tool
+  if(current.id==='apply'){ const map={'Part-time / undergrad':'$25–40','Full-time graduate':'$40–60','Ex/Current MOE teacher':'$60–90'};
+    const h=document.getElementById('genHint'); if(h)h.textContent='Don\u2019t overquote. Typical band for "'+v.type+'": '+(map[v.type]||'')+'/hr.'; }
+}
+function genWire(t){ t.fields.forEach(f=>{ const el=document.getElementById('f_'+f.k);
+  if(el){ el.addEventListener('input',genUpdate); el.addEventListener('change',genUpdate); } });
+  if(t.fields.some(f=>f.type==='date')){ const d=document.getElementById('f_date'); }
+  genUpdate(); }
+function genCopy(){ const txt=document.getElementById('genOut').textContent;
+  navigator.clipboard&&navigator.clipboard.writeText(txt).then(()=>flash('Copied!')).catch(()=>fallbackCopy(txt)); }
+function fallbackCopy(txt){ const ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();
+  try{document.execCommand('copy');flash('Copied!');}catch(e){}document.body.removeChild(ta); }
+function genClear(){ current.fields.forEach(f=>{ const el=document.getElementById('f_'+f.k); if(el){ if(el.tagName==='SELECT')el.selectedIndex=0; else el.value=''; } }); genUpdate(); }
+
+/* ----- trackers ----- */
+function trackHTML(t){
+  const inputs=t.fields.map(fieldHTML).join('');
+  return `<div class="row2">${inputs.includes('</textarea>')?inputs:inputs}</div>
+    ${t.note?`<p class="hint">${t.note}</p>`:''}
+    <div class="toolbar">
+      <button class="minibtn red" onclick="trackAdd()">Add</button>
+      <span class="saved" id="savedMsg">Saved &#10003;</span>
+      <button class="minibtn" style="margin-left:auto" onclick="trackExport()">Export</button>
+      <button class="minibtn" onclick="trackClearAll()">Clear all</button>
+    </div>
+    <div id="trackTable"></div>`;
+}
+function trackData(t){ return store.get(t.storeKey,[]); }
+function trackAdd(){
+  const t=current; const row={_id:Date.now()+''+Math.floor(Math.random()*999)};
+  let any=false;
+  t.fields.forEach(f=>{ const el=document.getElementById('f_'+f.k); row[f.k]=el?el.value:''; if(row[f.k])any=true; });
+  if(!any)return;
+  const data=trackData(t); data.push(row); store.set(t.storeKey,data);
+  t.fields.forEach(f=>{ const el=document.getElementById('f_'+f.k); if(el){ if(el.tagName==='SELECT')el.selectedIndex=0; else el.value=''; } });
+  flash('Saved \u2713'); trackRender(t);
+}
+function trackDel(id){ const t=current; let data=trackData(t).filter(r=>r._id!==id); store.set(t.storeKey,data); trackRender(t); }
+function trackClearAll(){ if(!confirm('Delete all rows in this tool? This cannot be undone.'))return; store.set(current.storeKey,[]); trackRender(current); }
+function trackExport(){ const t=current; const data=trackData(t);
+  if(!data.length){ alert('Nothing to export yet.'); return; }
+  const cols=t.fields.map(f=>f.k);
+  const csv=[cols.join(',')].concat(data.map(r=>cols.map(c=>`"${String(r[c]==null?'':r[c]).replace(/"/g,'""')}"`).join(','))).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=t.storeKey+'-'+localDateStr()+'.csv'; a.click(); URL.revokeObjectURL(a.href);
+}
+function trackRender(t){
+  let data=trackData(t).slice();
+  if(t.sortFn) data.sort(t.sortFn);
+  const host=document.getElementById('trackTable'); if(!host)return;
+  if(!data.length){ host.innerHTML=`<div class="empty">Nothing here yet. Add your first entry above — it saves to this browser only.</div>`; return; }
+  const allRaw=trackData(t);
+  const head=t.cols.map(c=>`<th class="${c.cls==='num'?'num':''}">${c.l}</th>`).join('')+'<th></th>';
+  const body=data.map(r=>{
+    const tds=t.cols.map(c=>{
+      let val = c.compute ? c.compute(r,allRaw) : esc(r[c.k]);
+      return `<td class="${c.cls==='num'?'num':''}">${val}</td>`;
+    }).join('');
+    return `<tr>${tds}<td><button class="delx" title="Delete" onclick="trackDel('${r._id}')">&times;</button></td></tr>`;
+  }).join('');
+  let html=`<table><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table>`;
+  if(t.summary){ html+=`<div class="summary">${t.summary(allRaw)}</div>`; }
+  host.innerHTML=html;
+}
+function flash(msg){ const el=document.getElementById('savedMsg'); if(el){ el.textContent=msg; el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1200); } }
+</script>
+</body>
+</html>
