@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review Collector — Marking Book</title><meta name="description" content="Save the kind words parents send. Real quotes you can (with permission) use to win the next student.">
+<link rel="manifest" href="./manifest.json"><meta name="theme-color" content="#1B2330">
+<style>
+:root{--paper:#FBFAF6;--paper-2:#F2F0E8;--ink:#1B2330;--ink-soft:#5A6472;--rule:#E2E6EC;--rule-strong:#CBD2DB;--red:#D6443A;--red-soft:#F7E2DF;--tick:#2E7D5B;--tick-soft:#DCEDE4;--hl:#F4D35E;--radius:4px;--maxw:1080px;}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Georgia,"Times New Roman",serif;font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4,.disp,.eyebrow,.btn,nav,th,label,.mono,input,select,textarea,button,.minibtn{font-family:"Helvetica Neue",Helvetica,Arial,sans-serif}
+.mono,.num{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+a{color:var(--red);text-decoration:none}a:hover{text-decoration:underline}
+.eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;color:var(--red)}
+.sheet{position:relative;background-image:repeating-linear-gradient(transparent,transparent 31px,var(--rule) 31px,var(--rule) 32px);background-position:0 8px}
+.sheet::before{content:"";position:absolute;top:0;bottom:0;left:54px;width:2px;background:var(--red);opacity:.5}
+@media(max-width:640px){.sheet::before{left:24px}}
+nav{position:sticky;top:0;z-index:40;background:rgba(251,250,246,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--rule-strong)}
+.navin{max-width:var(--maxw);margin:0 auto;padding:12px 22px;display:flex;align-items:center;gap:18px}
+.brand{font-weight:800;letter-spacing:-.02em;font-size:19px;display:flex;align-items:center;gap:9px}
+.brand .tk{color:var(--red);font-size:22px;line-height:1}
+.navlinks{margin-left:auto;display:flex;gap:20px;font-size:14px;font-weight:600}
+.navlinks a{color:var(--ink)}
+.back{margin-left:auto;font-size:14px;font-weight:700;color:var(--ink)}
+@media(max-width:720px){.navlinks{display:none}}
+/* hub hero */
+header.hero{padding:60px 0 38px;position:relative;overflow:hidden}
+.hero h1{font-size:clamp(34px,6vw,60px);line-height:1.02;letter-spacing:-.03em;font-weight:800;margin:14px 0 0;max-width:15ch}
+.hero h1 em{font-style:normal;color:var(--red)}
+.hero .lede{font-size:clamp(18px,2.4vw,22px);max-width:46ch;margin:22px 0 0}
+.hero .sub{color:var(--ink-soft);max-width:48ch;margin-top:12px;font-size:16px}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.btn{display:inline-block;border:none;cursor:pointer;font-weight:700;font-size:15px;padding:13px 22px;border-radius:var(--radius);background:var(--ink);color:var(--paper)}
+.btn:hover{text-decoration:none;background:#000}.btn.red{background:var(--red)}.btn.red:hover{background:#bb392f}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--ink)}.btn.ghost:hover{background:var(--ink);color:var(--paper)}
+.heromark{position:absolute;right:-10px;top:24px;font-size:230px;line-height:1;color:var(--red);opacity:.07;font-family:Georgia,serif;transform:rotate(-8deg);pointer-events:none}
+.strip{background:var(--ink);color:#C9CFDA}.strip .wrap{display:flex;flex-wrap:wrap;gap:26px;padding:18px 22px;justify-content:space-between}
+.strip b{color:#fff}.strip .mono{color:var(--hl)}.strip div{font-size:14px;flex:1;min-width:170px}
+section{padding:54px 0}
+.seclabel{display:flex;align-items:baseline;gap:14px;margin-bottom:6px;flex-wrap:wrap}
+.seclabel h2{font-size:clamp(24px,3.4vw,33px);letter-spacing:-.02em;font-weight:800;margin:0}
+.secintro{color:var(--ink-soft);max-width:62ch;margin:0 0 26px;font-size:16px}
+.journey{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--rule-strong);border-radius:var(--radius);overflow:hidden}
+.jstage{border-right:1px solid var(--rule-strong);background:var(--paper)}.jstage:last-child{border-right:none}
+.jhead{padding:12px 14px;background:var(--ink);color:var(--paper)}
+.jhead .n{font-size:11px;letter-spacing:.12em;color:var(--hl);font-weight:700}.jhead .t{font-weight:800;font-size:15px}
+.jbody{padding:12px 14px}.jpain{font-size:12.5px;color:var(--ink-soft);margin:0 0 10px;font-style:italic}
+.jtool{font-size:12.5px;padding:5px 0;border-bottom:1px dotted var(--rule-strong);display:flex;gap:6px}
+.jtool:last-child{border-bottom:none}.jtool a{color:var(--ink);display:flex;gap:6px}.jtool a:hover{color:var(--red);text-decoration:none}.jtool .d{color:var(--red);font-weight:700}
+@media(max-width:820px){.journey{grid-template-columns:1fr 1fr}.jstage{border-bottom:1px solid var(--rule-strong)}}
+@media(max-width:480px){.journey{grid-template-columns:1fr}}
+.stagegroup{margin-bottom:38px}
+.stagebar{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:18px}
+.stagebar .sn{font-family:ui-monospace,monospace;color:var(--red);font-weight:700;font-size:14px}
+.stagebar h3{margin:0;font-size:20px;font-weight:800}.stagebar .cnt{margin-left:auto;font-size:12px;color:var(--ink-soft)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:14px}
+.card{background:#fff;border:1px solid var(--rule-strong);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;transition:transform .12s,box-shadow .12s}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 22px -12px rgba(27,35,48,.35);border-color:var(--ink)}
+.card a{color:inherit}.card a:hover{text-decoration:none}
+.tag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:#fff;background:var(--ink);padding:2px 7px;border-radius:20px;align-self:flex-start}
+.tag.gen{background:var(--red)}.tag.track{background:var(--tick)}
+.card h4{font-size:16px;margin:11px 0 5px}.card p{margin:0;font-size:13.5px;color:var(--ink-soft);flex:1}
+.card .open{margin-top:12px;font-size:12.5px;font-weight:700;color:var(--red)}
+.why{background:var(--ink);color:#C9CFDA}.why .eyebrow{color:var(--hl)}.why h2{color:#fff}.why .secintro{color:#C9CFDA}
+.whygrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+.whygrid h4{font-size:16px;margin:0 0 6px;color:#fff}.whygrid p{margin:0;font-size:14.5px}.whygrid .num{font-size:13px;color:var(--hl)}
+footer{background:var(--paper-2);border-top:1px solid var(--rule-strong);padding:38px 0;font-size:14px;color:var(--ink-soft)}
+footer b{color:var(--ink)}
+.privacy{display:flex;gap:10px;align-items:flex-start;background:var(--tick-soft);border:1px solid #BCD9C8;border-radius:var(--radius);padding:14px 16px;margin-top:18px;font-size:13.5px;color:#244c39}
+.privacy .tk{color:var(--tick);font-size:18px;line-height:1.2}
+/* app page */
+.appwrap{max-width:680px;margin:0 auto;padding:30px 22px 60px}
+.apphead{margin-bottom:8px}
+.apphead h1{font-size:clamp(26px,4vw,36px);font-weight:800;letter-spacing:-.02em;margin:6px 0 6px}
+.apphead p{margin:0;color:var(--ink-soft);font-size:16px;max-width:54ch}
+label{display:block;font-size:12px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-soft);margin:12px 0 5px}
+input,select,textarea{width:100%;font-size:15px;padding:9px 11px;border:1px solid var(--rule-strong);border-radius:var(--radius);background:#fff;color:var(--ink)}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--red);outline-offset:1px;border-color:var(--red)}
+textarea{min-height:78px;resize:vertical;font-family:Georgia,serif}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.formgrid .full{grid-column:1/-1}
+@media(max-width:520px){.formgrid{grid-template-columns:1fr}}
+.out{margin-top:18px;background:#fff;border:1px dashed var(--rule-strong);border-radius:var(--radius);padding:16px;white-space:pre-wrap;font-family:Georgia,serif;font-size:14.5px;min-height:50px}
+.toolbar{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center}
+.minibtn{font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--ink);background:transparent;color:var(--ink);padding:9px 16px;border-radius:var(--radius)}
+.minibtn:hover{background:var(--ink);color:#fff}.minibtn.red{border-color:var(--red);color:var(--red)}.minibtn.red:hover{background:var(--red);color:#fff}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px}
+th{text-align:left;font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-soft);border-bottom:1px solid var(--rule-strong);padding:6px 8px}
+td{padding:8px;border-bottom:1px solid var(--rule);vertical-align:top}
+td.num,th.num{text-align:right;font-family:ui-monospace,monospace}
+.pill{font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap}
+.pill.ok{background:var(--tick-soft);color:#244c39}.pill.no{background:var(--red-soft);color:#9c2f27}.pill.warn{background:#FBEFC9;color:#7a5b00}
+.delx{cursor:pointer;color:var(--ink-soft);border:none;background:none;font-size:16px}.delx:hover{color:var(--red)}
+.summary{margin-top:14px;padding:12px 14px;background:var(--paper-2);border-radius:var(--radius);font-size:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.summary b{font-family:ui-monospace,monospace;font-size:17px}
+.empty{color:var(--ink-soft);font-style:italic;font-size:14px;padding:16px 4px}
+.hint{font-size:12.5px;color:var(--ink-soft);margin-top:8px}
+.saved{display:inline-block;font-size:12px;color:var(--tick);font-weight:700;opacity:0;transition:opacity .2s}.saved.show{opacity:1}
+.remember{font-size:12px;color:var(--tick);margin-top:10px;display:flex;gap:6px;align-items:center}
+.filter{margin-top:6px}
+</style></head><body>
+<nav><div class="navin"><a class="brand" href="./index.html" style="color:inherit"><span class="tk">&#10003;</span> Marking&nbsp;Book</a>
+<a class="back" href="./index.html">&larr; All 20 tools</a></div></nav>
+<div class="appwrap"><div class="apphead"><div class="eyebrow" id="stageTag"></div><h1 id="appTitle"></h1><p id="appBlurb"></p></div>
+<div id="app"></div>
+<div class="privacy"><span class="tk">&#10003;</span><span><b>Stays on your device.</b> Nothing here is uploaded. Generated text is built on-screen; saved entries live in this browser only. Use Export to back up.</span></div>
+</div>
+<script>
+"use strict";
+function localDateStr(d){d=d||new Date();var o=d.getTimezoneOffset();return new Date(d.getTime()-o*60000).toISOString().slice(0,10);}
+function todayNice(){return new Date().toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'});}
+var store={get:function(k,fb){try{var v=localStorage.getItem('mbk_'+k);return v?JSON.parse(v):fb;}catch(e){return fb;}},
+set:function(k,v){try{localStorage.setItem('mbk_'+k,JSON.stringify(v));return true;}catch(e){return false;}}};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c];});}
+function money(n){n=Number(n)||0;return 'S$'+n.toLocaleString('en-SG',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+var STAGEMAP={find:'Stage 1 · Get found',onboard:'Stage 2 · Onboard',teach:'Stage 3 · Teach',paid:'Stage 4 · Get paid',grow:'Stage 5 · Grow'};
+
+var TOOLS = [
+{id:'ratecard',stage:'find',type:'gen',name:'Rate Card Maker',
+ blurb:'A clean, shareable list of your levels, subjects and rates — so you stop quoting from memory.',
+ fields:[{k:'name',l:'Your name / handle',ph:'e.g. Mr Tan (NIE-trained)',save:true},
+   {k:'lines',l:'One per line:  Level Subject = rate',type:'textarea',ph:'P5 Math = 45\nSec 3 A.Math = 55\nJC H2 Chem = 80'},
+   {k:'mode',l:'Lesson mode',type:'select',opts:['Home (I travel)','Online','Both'],save:true},
+   {k:'note',l:'Note (optional)',ph:'Min 1.5h per session. Packages of 4 available.'}],
+ build:function(v){var rows=(v.lines||'').split('\n').filter(function(x){return x.trim();}).map(function(x){var p=x.split('=');return '  '+(p[0]||'').trim()+'  —  S$'+(p[1]||'').trim()+'/hr';}).join('\n');
+   return '📋 TUITION RATES — '+(v.name||'[your name]')+'\nMode: '+v.mode+'\n\n'+(rows||'  [add your levels above]')+(v.note?'\nNote: '+v.note:'')+'\n\n(Rates as of '+todayNice()+'. Direct private tuition, no agency fee.)';},
+ hint:'SG market check: undergrad ~$25–40/hr · grad ~$40–60/hr · ex/current MOE ~$60–90+/hr. Don\u2019t overquote — it loses you the assignment.'},
+{id:'enquiry',stage:'find',type:'gen',name:'Enquiry First-Reply',
+ blurb:'A warm, complete reply to a parent enquiry that asks the questions you always forget to ask.',
+ fields:[{k:'tutor',l:'Your name',ph:'Mr Tan',save:true},{k:'level',l:'Level & subject',ph:'P5 Math'},
+   {k:'area',l:'Area you cover',ph:'Bishan / online',save:true},{k:'rate',l:'Your rate',ph:'45',save:true},
+   {k:'slots',l:'Slots you have free',ph:'Tue 5pm, Sat morning'}],
+ build:function(v){return 'Hi! Thanks for reaching out 🙂\n\nI\'m '+(v.tutor||'[name]')+' — I teach '+(v.level||'[level/subject]')+', '+(v.area||'[area]')+', at S$'+(v.rate||'[rate]')+'/hr.\n\nTo see if I\'m a good fit, may I check:\n• Which school & current results?\n• Main worry — specific topics, exam technique, confidence?\n• Preferred day/time? I currently have '+(v.slots||'[slots]')+'.\n• Home or online?\n\nHappy to do a short first lesson so your child can see if we click before committing. 👍';}},
+{id:'trial',stage:'find',type:'gen',name:'Trial Lesson Confirmation',
+ blurb:'Lock in the first lesson with a tidy confirmation so nobody turns up to the wrong place or time.',
+ fields:[{k:'parent',l:'Parent name',ph:'Mrs Lim'},{k:'student',l:'Student',ph:'Jayden'},
+   {k:'date',l:'Date',type:'date'},{k:'time',l:'Time',type:'time'},{k:'venue',l:'Venue / link',ph:'Your home / Zoom link'},
+   {k:'rate',l:'Trial rate',ph:'45',save:true},{k:'bring',l:'Bring along',ph:'Latest test paper, school worksheet'}],
+ build:function(v){var d=v.date?new Date(v.date).toLocaleDateString('en-SG',{weekday:'long',day:'numeric',month:'long'}):'[date]';
+   return 'Confirmed! Looking forward to meeting '+(v.student||'[student]')+' 🙂\n\n📅 '+d+'\n⏰ '+(v.time||'[time]')+'\n📍 '+(v.venue||'[venue]')+'\n💵 S$'+(v.rate||'[rate]')+' for the first lesson\n\nPlease have ready: '+(v.bring||'[materials]')+'.\n\nIf anything changes, just message me. See you then!\n— sent '+todayNice();}},
+{id:'apply',stage:'find',type:'gen',name:'Assignment Quick-Apply',
+ blurb:'Reply to a Telegram/Facebook assignment posting fast, with everything the agency asks for.',
+ fields:[{k:'tutor',l:'Your name',ph:'Mr Tan',save:true},
+   {k:'type',l:'Tutor type',type:'select',opts:['Part-time / undergrad','Full-time graduate','Ex/Current MOE teacher'],save:true},
+   {k:'subj',l:'Subject(s) you\u2019re applying for',ph:'P4 Science'},{k:'exp',l:'Relevant experience (1 line)',ph:'3 yrs, raised 2 students C→A in PSLE Sci',save:true},
+   {k:'rate',l:'Your rate',ph:'40',save:true},{k:'slots',l:'Detailed availability',ph:'Mon/Wed after 7pm, Sat 9am–1pm'}],
+ build:function(v){return 'Hi, I\'d like to apply for this assignment.\n\n• Name: '+(v.tutor||'[name]')+'\n• Tutor type: '+v.type+'\n• Subject: '+(v.subj||'[subject]')+'\n• Experience: '+(v.exp||'[experience]')+'\n• Rate: S$'+(v.rate||'[rate]')+'/hr\n• Available: '+(v.slots||'[slots]')+'\n\nCan start asap. Thank you!';},
+ hint:'Postings literally say "don\u2019t overquote".'},
+{id:'students',stage:'onboard',type:'track',name:'Student Cards',storeKey:'students',
+ blurb:'A private roster: who you teach, their level, goal and parent contact. Stays on your device.',
+ fields:[{k:'name',l:'Student',ph:'Jayden Lim'},{k:'level',l:'Level & subject',ph:'P5 Math'},
+   {k:'contact',l:'Parent contact (stays local)',ph:'Mrs Lim 9xxx'},{k:'goal',l:'Main goal',ph:'PSLE — AL4 to AL2'}],
+ cols:[{k:'name',l:'Student'},{k:'level',l:'Level'},{k:'goal',l:'Goal'},{k:'contact',l:'Contact'}]},
+{id:'timetable',stage:'onboard',type:'track',name:'Weekly Slot Planner',storeKey:'slots',
+ blurb:'Lay out your week and catch clashes before you accidentally double-book a Thursday.',
+ fields:[{k:'day',l:'Day',type:'select',opts:['Mon','Tue','Wed','Thu','Fri','Sat','Sun']},
+   {k:'start',l:'Start',type:'time'},{k:'end',l:'End',type:'time'},{k:'student',l:'Student',ph:'Jayden (P5 Math)'}],
+ cols:[{k:'day',l:'Day'},{k:'start',l:'Start'},{k:'end',l:'End'},{k:'student',l:'Student'},
+   {k:'_clash',l:'',compute:function(r,all){var ov=all.some(function(o){return o!==r&&o.day===r.day&&o.start&&o.end&&r.start&&r.end&&(r.start<o.end&&o.start<r.end);});return ov?'<span class="pill no">clash</span>':'<span class="pill ok">ok</span>';}}],
+ sortFn:function(a,b){var d=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];return d.indexOf(a.day)-d.indexOf(b.day)||(a.start||'').localeCompare(b.start||'');}},
+{id:'packages',stage:'onboard',type:'track',name:'Package Tracker',storeKey:'packages',
+ blurb:'Selling 4-lesson packages? Track how many lessons each student has left before you forget.',
+ fields:[{k:'student',l:'Student',ph:'Jayden'},{k:'total',l:'Lessons in package',type:'number',ph:'4'},{k:'used',l:'Lessons used',type:'number',ph:'1'}],
+ cols:[{k:'student',l:'Student'},{k:'total',l:'Package',cls:'num'},{k:'used',l:'Used',cls:'num'},
+   {k:'_left',l:'Left',cls:'num',compute:function(r){var left=(Number(r.total)||0)-(Number(r.used)||0);return '<span class="pill '+(left<=1?'warn':'ok')+'">'+left+'</span>';}}]},
+{id:'travel',stage:'onboard',type:'track',name:'Travel & Rate Sanity',storeKey:'travel',
+ blurb:'For home tutors: see your true hourly rate once travel time and transport eat into it.',
+ fields:[{k:'student',l:'Student',ph:'Jayden'},{k:'area',l:'Area',ph:'Pasir Ris'},{k:'mins',l:'Travel each way (mins)',type:'number',ph:'45'},
+   {k:'fare',l:'Transport cost return (S$)',type:'number',ph:'5'},{k:'rate',l:'Your hourly rate (S$)',type:'number',ph:'45'}],
+ cols:[{k:'student',l:'Student'},{k:'area',l:'Area'},{k:'mins',l:'Travel/way',cls:'num'},
+   {k:'_eff',l:'True $/clock-hr',cls:'num',compute:function(r){var rate=Number(r.rate)||0,fare=Number(r.fare)||0,mins=Number(r.mins)||0,lessonH=1.5,clockH=lessonH+(2*mins)/60,net=rate*lessonH-fare,eff=clockH>0?net/clockH:0;return '<span class="pill '+(eff<rate*0.7?'warn':'ok')+'">'+eff.toFixed(0)+'</span>';}}],
+ note:'Assumes a 1.5h lesson. True $/clock-hr = (rate × 1.5 − fare) ÷ (1.5h + travel both ways). Far below your headline rate? That\u2019s why far-away students feel not worth it.'},
+{id:'attendance',stage:'teach',type:'track',name:'Attendance Log',storeKey:'attendance',
+ blurb:'A dated record of who showed, skipped or rescheduled — useful when a parent disputes a bill.',
+ fields:[{k:'student',l:'Student',ph:'Jayden'},{k:'date',l:'Date',type:'date'},
+   {k:'status',l:'Status',type:'select',opts:['Present','Rescheduled','Absent (charged)','Absent (waived)']},{k:'note',l:'Note',ph:'Covered fractions'}],
+ cols:[{k:'date',l:'Date'},{k:'student',l:'Student'},{k:'status',l:'Status',compute:function(r){var ok=r.status==='Present';return '<span class="pill '+(ok?'ok':'warn')+'">'+esc(r.status)+'</span>';}},{k:'note',l:'Note'}],
+ sortFn:function(a,b){return (b.date||'').localeCompare(a.date||'');}},
+{id:'lessonplan',stage:'teach',type:'track',name:'Topic / Syllabus Tracker',storeKey:'topics',
+ blurb:'Plan topics against the syllabus and tick them off, so you always know what\u2019s next.',
+ fields:[{k:'student',l:'Student',ph:'Jayden'},{k:'topic',l:'Topic',ph:'Fractions: division'},
+   {k:'status',l:'Status',type:'select',opts:['Planned','Covered','Revised','Mastered']}],
+ cols:[{k:'student',l:'Student'},{k:'topic',l:'Topic'},{k:'status',l:'Status',compute:function(r){var m={'Mastered':'ok','Revised':'ok','Covered':'warn','Planned':'no'}[r.status]||'no';return '<span class="pill '+m+'">'+esc(r.status)+'</span>';}}]},
+{id:'homework',stage:'teach',type:'track',name:'Homework Tracker',storeKey:'homework',
+ blurb:'What you assigned, when it\u2019s due, and whether it actually got done.',
+ fields:[{k:'student',l:'Student',ph:'Jayden'},{k:'task',l:'Assigned',ph:'Worksheet 3, Q1–10'},
+   {k:'due',l:'Due',type:'date'},{k:'done',l:'Done?',type:'select',opts:['Not yet','Done','Partial']}],
+ cols:[{k:'student',l:'Student'},{k:'task',l:'Task'},{k:'due',l:'Due'},{k:'done',l:'Done?',compute:function(r){var m={'Done':'ok','Partial':'warn','Not yet':'no'}[r.done]||'no';return '<span class="pill '+m+'">'+esc(r.done)+'</span>';}}],
+ sortFn:function(a,b){return (a.due||'').localeCompare(b.due||'');}},
+{id:'marks',stage:'teach',type:'track',name:'Marks & Progress',storeKey:'marks',
+ blurb:'Log every test mark as a percentage so you can actually show a parent the trend.',
+ fields:[{k:'student',l:'Student',ph:'Jayden'},{k:'assess',l:'Assessment',ph:'CA2 Math'},{k:'date',l:'Date',type:'date'},
+   {k:'mark',l:'Mark',type:'number',ph:'34'},{k:'outof',l:'Out of',type:'number',ph:'50'}],
+ cols:[{k:'date',l:'Date'},{k:'student',l:'Student'},{k:'assess',l:'Assessment'},
+   {k:'_pct',l:'%',cls:'num',compute:function(r){var p=(Number(r.outof)||0)>0?Math.round(Number(r.mark)/Number(r.outof)*100):0;return '<span class="pill '+(p>=75?'ok':p>=50?'warn':'no')+'">'+p+'%</span>';}}],
+ sortFn:function(a,b){return (a.date||'').localeCompare(b.date||'');}},
+{id:'invoice',stage:'paid',type:'gen',name:'Invoice / Receipt',
+ blurb:'A proper invoice with your PayNow details and a clean total — looks professional, takes 30 seconds.',
+ fields:[{k:'tutor',l:'Your name',ph:'Mr Tan',save:true},{k:'paynow',l:'PayNow name / number',ph:'Tan A.B. · 9xxx xxxx',save:true},
+   {k:'parent',l:'Bill to',ph:'Mrs Lim (Jayden)'},{k:'period',l:'Period',ph:'June 2026'},
+   {k:'lines',l:'One per line:  date desc = amount',type:'textarea',ph:'3 Jun  P5 Math 1.5h = 67.50\n10 Jun P5 Math 1.5h = 67.50'}],
+ build:function(v){var total=0;var rows=(v.lines||'').split('\n').filter(function(x){return x.trim();}).map(function(x){var p=x.split('=');total+=Number((p[1]||'').trim())||0;var d=(p[0]||'').trim();while(d.length<26)d+=' ';return '  '+d.slice(0,26)+'S$'+(Number((p[1]||'').trim())||0).toFixed(2);}).join('\n');
+   var line='----------------------------------';
+   return 'INVOICE — '+(v.period||'[period]')+'\nFrom: '+(v.tutor||'[your name]')+'\nTo:   '+(v.parent||'[parent]')+'\nDate: '+todayNice()+'\n'+line+'\n'+(rows||'  [add lessons above]')+'\n'+line+'\nTOTAL:  S$'+total.toFixed(2)+'\n\nPay via PayNow to: '+(v.paynow||'[PayNow]')+'\nThank you! 🙏';}},
+{id:'payments',stage:'paid',type:'track',name:'Payment Tracker',storeKey:'payments',
+ blurb:'Who owes what, who\u2019s paid. The running "owed" total tells you exactly how much is out there.',
+ fields:[{k:'student',l:'Student',ph:'Jayden'},{k:'period',l:'For',ph:'June'},{k:'amount',l:'Amount (S$)',type:'number',ph:'270'},{k:'status',l:'Status',type:'select',opts:['Unpaid','Paid']}],
+ cols:[{k:'student',l:'Student'},{k:'period',l:'For'},{k:'amount',l:'Amount',cls:'num',compute:function(r){return money(r.amount);}},
+   {k:'status',l:'Status',compute:function(r){var ok=r.status==='Paid';return '<span class="pill '+(ok?'ok':'no')+'">'+esc(r.status)+'</span>';}}],
+ summary:function(rows){var out=rows.filter(function(r){return r.status!=='Paid';}).reduce(function(s,r){return s+(Number(r.amount)||0);},0);var got=rows.filter(function(r){return r.status==='Paid';}).reduce(function(s,r){return s+(Number(r.amount)||0);},0);
+   return '<span>Collected: <b style="color:var(--tick)">'+money(got)+'</b></span><span>Still owed to you: <b style="color:var(--red)">'+money(out)+'</b></span>';}},
+{id:'reminder',stage:'paid',type:'gen',name:'Payment Reminder',
+ blurb:'The message you hate writing — done for you, in three tones, so chasing money stops being awkward.',
+ fields:[{k:'parent',l:'Parent name',ph:'Mrs Lim'},{k:'student',l:'Student',ph:'Jayden'},{k:'amount',l:'Amount (S$)',ph:'270'},
+   {k:'period',l:'For',ph:'June lessons'},{k:'paynow',l:'PayNow',ph:'9xxx xxxx',save:true},{k:'tone',l:'Tone',type:'select',opts:['Gentle nudge','Clear & direct','Final reminder']}],
+ build:function(v){var p=v.parent||'[parent]',s=v.student||'[student]',a='S$'+(v.amount||'[amount]'),per=v.period||'[period]',pn=v.paynow||'[PayNow]';
+   var t={'Gentle nudge':'Hi '+p+', hope you\'re well 🙂 Just a friendly reminder for '+s+'\'s '+per+' — '+a+'. Whenever convenient, PayNow to '+pn+'. Thank you so much!',
+   'Clear & direct':'Hi '+p+', this is a reminder that '+a+' for '+s+'\'s '+per+' is still outstanding. Kindly PayNow to '+pn+' by end of this week. Thanks for sorting it out! 🙏',
+   'Final reminder':'Hi '+p+', '+s+'\'s '+per+' fees ('+a+') remain unpaid despite earlier reminders. I\'ll need this settled before the next lesson — PayNow to '+pn+'. Do let me know if there\'s any issue. Thank you.'};
+   return t[v.tone||'Gentle nudge'];}},
+{id:'earnings',stage:'paid',type:'track',name:'Monthly Earnings',storeKey:'earnings',
+ blurb:'Log lessons taught and your rate; it totals what you actually earned. No spreadsheet.',
+ fields:[{k:'date',l:'Date',type:'date'},{k:'student',l:'Student',ph:'Jayden'},{k:'hours',l:'Hours',type:'number',ph:'1.5'},{k:'rate',l:'Rate/hr (S$)',type:'number',ph:'45'}],
+ cols:[{k:'date',l:'Date'},{k:'student',l:'Student'},{k:'hours',l:'Hrs',cls:'num'},{k:'_amt',l:'Earned',cls:'num',compute:function(r){return money((Number(r.hours)||0)*(Number(r.rate)||0));}}],
+ sortFn:function(a,b){return (b.date||'').localeCompare(a.date||'');},
+ summary:function(rows){var tot=rows.reduce(function(s,r){return s+(Number(r.hours)||0)*(Number(r.rate)||0);},0);var hrs=rows.reduce(function(s,r){return s+(Number(r.hours)||0);},0);
+   return '<span>Total hours: <b>'+hrs.toFixed(1)+'</b></span><span>Earned: <b style="color:var(--tick)">'+money(tot)+'</b></span>';}},
+{id:'report',stage:'grow',type:'gen',name:'Parent Progress Report',
+ blurb:'A tidy monthly update that makes parents feel the money is working — from a few quick notes.',
+ fields:[{k:'student',l:'Student',ph:'Jayden'},{k:'month',l:'Month',ph:'June 2026'},{k:'topics',l:'Topics covered',ph:'Fractions, decimals, intro to ratio'},
+   {k:'strength',l:'Going well',ph:'Faster at long division, more confident'},{k:'focus',l:'Still working on',ph:'Word problems — reading the question'},{k:'next',l:'Next month',ph:'Ratio + start revision papers'}],
+ build:function(v){return '📘 Progress update — '+(v.student||'[student]')+'\n'+(v.month||'[month]')+'\n\nCovered this month:\n'+(v.topics||'[topics]')+'\n\nWhat\'s going well:\n'+(v.strength||'[strengths]')+'\n\nStill working on:\n'+(v.focus||'[focus]')+'\n\nPlan for next month:\n'+(v.next||'[plan]')+'\n\nHappy to chat anytime. Thanks for your trust! 🙂';}},
+{id:'reviews',stage:'grow',type:'track',name:'Review Collector',storeKey:'reviews',
+ blurb:'Save the kind words parents send. Real quotes you can (with permission) use to win the next student.',
+ fields:[{k:'parent',l:'From',ph:'Mrs Lim'},{k:'student',l:'Re student',ph:'Jayden'},{k:'quote',l:'What they said',type:'textarea',ph:'Jayden actually looks forward to Math now!'},{k:'date',l:'Date',type:'date'}],
+ cols:[{k:'date',l:'Date'},{k:'parent',l:'From'},{k:'quote',l:'Quote'}],
+ sortFn:function(a,b){return (b.date||'').localeCompare(a.date||'');}},
+{id:'referrals',stage:'grow',type:'track',name:'Referral Tracker',storeKey:'referrals',
+ blurb:'Word of mouth is how solo tutors grow. Track who referred whom and any reward you promised.',
+ fields:[{k:'referrer',l:'Referred by',ph:'Mrs Lim'},{k:'newstu',l:'New student',ph:'Rachel (Sec 2)'},{k:'reward',l:'Reward promised (S$)',type:'number',ph:'50'},{k:'status',l:'Reward status',type:'select',opts:['Pending','Given','None']}],
+ cols:[{k:'referrer',l:'Referred by'},{k:'newstu',l:'New student'},{k:'reward',l:'Reward',cls:'num',compute:function(r){return r.reward?money(r.reward):'—';}},
+   {k:'status',l:'Status',compute:function(r){var m={'Given':'ok','Pending':'warn','None':'no'}[r.status]||'no';return '<span class="pill '+m+'">'+esc(r.status)+'</span>';}}],
+ summary:function(rows){return '<span>Students from referrals: <b>'+rows.length+'</b></span><span>The cheapest students you\'ll ever get.</span>';}},
+{id:'reschedule',stage:'grow',type:'gen',name:'Reschedule Message',
+ blurb:'CCA clash? MC? A polite, no-drama message to move a lesson without losing goodwill.',
+ fields:[{k:'parent',l:'Parent name',ph:'Mrs Lim'},{k:'student',l:'Student',ph:'Jayden'},{k:'orig',l:'Original slot',ph:'this Thursday 5pm'},
+   {k:'reason',l:'Reason',type:'select',opts:['Student has a clash','I\u2019m unwell','Public holiday','Exam week — pausing','Other commitment']},{k:'proposed',l:'Proposed new slot',ph:'Saturday 10am'}],
+ build:function(v){var r={'Student has a clash':'I understand '+(v.student||'[student]')+' has a clash','I\u2019m unwell':'I\'m a little unwell and don\'t want to pass anything on','Public holiday':'as it falls on a public holiday','Exam week — pausing':'since it\'s exam week and '+(v.student||'[student]')+' may prefer to focus on revision','Other commitment':'I have an unavoidable commitment'}[v.reason];
+   return 'Hi '+(v.parent||'[parent]')+', regarding '+(v.orig||'[original slot]')+' — '+r+'. Could we move it to '+(v.proposed||'[new slot]')+' instead? Happy to work around what suits '+(v.student||'[student]')+'. Let me know and I\'ll confirm. Thanks for understanding! 🙂';}}
+];
+
+var current=null;
+function mountTool(id){
+  current=TOOLS.find(function(t){return t.id===id;}); if(!current)return;
+  var tag=document.getElementById('stageTag'); if(tag)tag.textContent=STAGEMAP[current.stage]||'';
+  var ti=document.getElementById('appTitle'); if(ti)ti.textContent=current.name;
+  var bl=document.getElementById('appBlurb'); if(bl)bl.textContent=current.blurb;
+  document.title=current.name+' — Marking Book';
+  var host=document.getElementById('app');
+  host.innerHTML = current.type==='gen'?genHTML(current):trackHTML(current);
+  if(current.type==='gen'){genInit(current);}else{trackRender(current);}
+}
+function fieldHTML(f){
+  var id='f_'+f.k, full=f.type==='textarea'?' class="full"':'';
+  if(f.type==='select')return '<div'+full+'><label for="'+id+'">'+f.l+'</label><select id="'+id+'">'+f.opts.map(function(o){return '<option>'+o+'</option>';}).join('')+'</select></div>';
+  if(f.type==='textarea')return '<div class="full"><label for="'+id+'">'+f.l+'</label><textarea id="'+id+'" placeholder="'+(f.ph||'')+'"></textarea></div>';
+  return '<div><label for="'+id+'">'+f.l+'</label><input id="'+id+'" type="'+(f.type||'text')+'" placeholder="'+(f.ph||'')+'"></div>';
+}
+/* ---- generators ---- */
+function genHTML(t){
+  var anySave=t.fields.some(function(f){return f.save;});
+  return '<div class="formgrid">'+t.fields.map(fieldHTML).join('')+'</div>'
+    +(t.hint?'<p class="hint" id="genHint">'+t.hint+'</p>':'')
+    +(anySave?'<div class="remember">&#10003; Your reusable details (name, PayNow, rate) are remembered on this device.</div>':'')
+    +'<div class="out" id="genOut">Fill in the fields and your message appears here.</div>'
+    +'<div class="toolbar"><button class="minibtn red" onclick="genCopy()">Copy</button><button class="minibtn" onclick="genClear()">Clear</button><span class="saved" id="savedMsg"></span></div>';
+}
+function genVals(t){var v={};t.fields.forEach(function(f){var el=document.getElementById('f_'+f.k);v[f.k]=el?el.value:'';});return v;}
+function genInit(t){
+  var saved=store.get('gendef_'+t.id,{});
+  t.fields.forEach(function(f){var el=document.getElementById('f_'+f.k);if(!el)return;
+    if(f.save&&saved[f.k]!=null&&saved[f.k]!=='')el.value=saved[f.k];
+    el.addEventListener('input',function(){genPersist(t);genUpdate();});
+    el.addEventListener('change',function(){genPersist(t);genUpdate();});
+  });
+  genUpdate();
+}
+function genPersist(t){var d={};t.fields.forEach(function(f){if(f.save){var el=document.getElementById('f_'+f.k);if(el)d[f.k]=el.value;}});store.set('gendef_'+t.id,d);}
+function genUpdate(){if(!current||current.type!=='gen')return;var v=genVals(current);document.getElementById('genOut').textContent=current.build(v);
+  if(current.id==='apply'){var m={'Part-time / undergrad':'$25\u201340','Full-time graduate':'$40\u201360','Ex/Current MOE teacher':'$60\u201390'};var h=document.getElementById('genHint');if(h)h.textContent='Don\u2019t overquote. Typical band for "'+v.type+'": '+(m[v.type]||'')+'/hr.';}
+}
+function genCopy(){var txt=document.getElementById('genOut').textContent;
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){flash('Copied!');},function(){fb(txt);});}else{fb(txt);}
+  function fb(x){var ta=document.createElement('textarea');ta.value=x;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');flash('Copied!');}catch(e){}document.body.removeChild(ta);}}
+function genClear(){current.fields.forEach(function(f){var el=document.getElementById('f_'+f.k);if(el){if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';}});genPersist(current);genUpdate();}
+/* ---- trackers ---- */
+function trackHTML(t){
+  return '<div class="formgrid">'+t.fields.map(fieldHTML).join('')+'</div>'
+    +(t.note?'<p class="hint">'+t.note+'</p>':'')
+    +'<div class="toolbar"><button class="minibtn red" onclick="trackAdd()">Add entry</button><span class="saved" id="savedMsg">Saved &#10003;</span>'
+    +'<button class="minibtn" style="margin-left:auto" onclick="trackExport()">Export CSV</button><button class="minibtn" onclick="trackClearAll()">Clear all</button></div>'
+    +'<input class="filter" id="trackFilter" placeholder="Filter rows…" oninput="trackRender(current)">'
+    +'<div id="trackTable"></div>';
+}
+function trackData(t){return store.get(t.storeKey,[]);}
+function trackAdd(){var t=current,row={_id:Date.now()+''+Math.floor(Math.random()*999)},any=false;
+  t.fields.forEach(function(f){var el=document.getElementById('f_'+f.k);row[f.k]=el?el.value:'';if(row[f.k])any=true;});
+  if(!any)return;var data=trackData(t);data.push(row);store.set(t.storeKey,data);
+  t.fields.forEach(function(f){var el=document.getElementById('f_'+f.k);if(el){if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';}});
+  flash('Saved \u2713');trackRender(t);}
+function trackDel(id){var t=current;store.set(t.storeKey,trackData(t).filter(function(r){return r._id!==id;}));trackRender(t);}
+function trackClearAll(){if(!confirm('Delete all entries in this app? This cannot be undone.'))return;store.set(current.storeKey,[]);trackRender(current);}
+function trackExport(){var t=current,data=trackData(t);if(!data.length){alert('Nothing to export yet.');return;}
+  var cols=t.fields.map(function(f){return f.k;});
+  var csv=[cols.join(',')].concat(data.map(function(r){return cols.map(function(c){return '"'+String(r[c]==null?'':r[c]).replace(/"/g,'""')+'"';}).join(',');})).join('\n');
+  var blob=new Blob([csv],{type:'text/csv'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=t.storeKey+'-'+localDateStr()+'.csv';a.click();URL.revokeObjectURL(a.href);}
+function trackRender(t){
+  var data=trackData(t).slice();if(t.sortFn)data.sort(t.sortFn);
+  var fEl=document.getElementById('trackFilter');var term=fEl?fEl.value.trim().toLowerCase():'';
+  if(term)data=data.filter(function(r){return t.fields.some(function(f){return String(r[f.k]||'').toLowerCase().indexOf(term)>=0;});});
+  var host=document.getElementById('trackTable');if(!host)return;
+  var allRaw=trackData(t);
+  if(!data.length){host.innerHTML='<div class="empty">'+(term?'No rows match that filter.':'Nothing here yet. Add your first entry above — it saves to this browser only.')+'</div>';
+    if(t.summary&&!term){host.innerHTML+='<div class="summary">'+t.summary(allRaw)+'</div>';}return;}
+  var head=t.cols.map(function(c){return '<th class="'+(c.cls==='num'?'num':'')+'">'+c.l+'</th>';}).join('')+'<th></th>';
+  var body=data.map(function(r){var tds=t.cols.map(function(c){var val=c.compute?c.compute(r,allRaw):esc(r[c.k]);return '<td class="'+(c.cls==='num'?'num':'')+'">'+val+'</td>';}).join('');
+    return '<tr>'+tds+'<td><button class="delx" title="Delete" onclick="trackDel(\''+r._id+'\')">&times;</button></td></tr>';}).join('');
+  var html='<table><thead><tr>'+head+'</tr></thead><tbody>'+body+'</tbody></table>';
+  if(t.summary)html+='<div class="summary">'+t.summary(allRaw)+'</div>';
+  host.innerHTML=html;
+}
+function flash(m){var el=document.getElementById('savedMsg');if(el){el.textContent=m;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},1200);}}
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('./sw.js').catch(function(){});});}
+
+mountTool('reviews');</script></body></html>
