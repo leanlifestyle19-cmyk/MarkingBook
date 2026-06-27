@@ -1,0 +1,17 @@
+{
+  "name": "Marking Book \u2014 tutor admin kit",
+  "short_name": "Marking Book",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FBFAF6",
+  "theme_color": "#1B2330",
+  "description": "Twenty standalone apps for the admin of solo tutoring in Singapore.",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
